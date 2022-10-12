@@ -22,7 +22,7 @@ jobs:
       RMA_GAD_APPLICATION_IDENTIFIER: ${{ secrets.RMA_GAD_APPLICATION_IDENTIFIER }}
     steps:
     - name: Repository checkout
-      #if: contains(github.event.pull_request.labels.*.name, '✓')
+      if: contains(github.event.pull_request.labels.*.name, '✓')
       uses: actions/checkout@v2
       
     - name: Setup ruby
@@ -30,6 +30,13 @@ jobs:
       with:
         ruby-version: 2.7.2
         bundler-cache: true
+
+    - uses: actions/cache@v3
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
         
     - name: Run tests
       run: |
