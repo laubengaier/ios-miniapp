@@ -1,0 +1,51 @@
+name: Fastlane CI (2)
+
+on:
+  push:
+    branches: [ feature-5.0.0/** ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    environment: STG
+    env:
+      RAS_PROJECT_IDENTIFIER_PROD: ${{ secrets.RAS_PROJECT_IDENTIFIER_PROD }}
+      RAS_PROJECT_IDENTIFIER_STG: ${{ secrets.RAS_PROJECT_IDENTIFIER_STG }}
+      RAS_PROJECT_SUBSCRIPTION_KEY_PROD: ${{ secrets.RAS_PROJECT_SUBSCRIPTION_KEY_PROD }}
+      RAS_PROJECT_SUBSCRIPTION_KEY_STG: ${{ secrets.RAS_PROJECT_SUBSCRIPTION_KEY_STG }}
+      RAT_ACCOUNT_IDENTIFIER: ${{ secrets.RAT_ACCOUNT_IDENTIFIER }}
+      RAT_ENDPOINT: ${{ secrets.RAT_ENDPOINT }}
+      RMA_API_ENDPOINT_PROD: ${{ secrets.RMA_API_ENDPOINT_PROD }}
+      RMA_API_ENDPOINT_STG: ${{ secrets.RMA_API_ENDPOINT_STG }}
+      RMA_APP_CENTER_SECRET: ${{ secrets.RMA_APP_CENTER_SECRET }}
+      RMA_DEMO_APP_BUILD_TYPE: ${{ secrets.RMA_DEMO_APP_BUILD_TYPE }}
+      RMA_GAD_APPLICATION_IDENTIFIER: ${{ secrets.RMA_GAD_APPLICATION_IDENTIFIER }}
+    steps:
+    - name: Repository checkout
+      if: contains(github.event.pull_request.labels.*.name, '✓')
+      uses: actions/checkout@v3
+
+    - uses: actions/cache@v3
+      id: cocoapods-cache
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.2
+        bundler-cache: true
+
+    - name: Install Dependencies
+      if: steps.cocoapods-cache.outputs.cache-hit != 'true'
+      run: bundle exec pod install
+
+    - name: Teststep
+      run: echo "this is a test"
+
+    - name: Run tests
+      run: |
+        bundle exec fastlane ci
