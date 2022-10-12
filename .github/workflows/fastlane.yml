@@ -24,6 +24,7 @@ jobs:
     - name: Repository checkout
       if: contains(github.event.pull_request.labels.*.name, '✓')
       uses: actions/checkout@v3
+
     - uses: actions/cache@v3
       id: cocoapods-cache
       with:
@@ -41,6 +42,9 @@ jobs:
     - name: Install Dependencies
       if: steps.cocoapods-cache.outputs.cache-hit != 'true'
       run: bundle exec pod install
+
+    - name: Teststep
+      run: echo "this is a test"
 
     - name: Run tests
       run: |
