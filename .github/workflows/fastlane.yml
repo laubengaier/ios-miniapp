@@ -37,7 +37,11 @@ jobs:
         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-pods-
-        
+  
+    - name: Install Dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: bundle exec pod install
+
     - name: Run tests
       run: |
         bundle exec fastlane ci
