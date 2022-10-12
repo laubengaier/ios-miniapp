@@ -22,7 +22,7 @@ jobs:
       RMA_GAD_APPLICATION_IDENTIFIER: ${{ secrets.RMA_GAD_APPLICATION_IDENTIFIER }}
     steps:
     - name: Repository checkout
-      if: contains(github.event.pull_request.labels.*.name, '✓')
+      #if: contains(github.event.pull_request.labels.*.name, '✓')
       uses: actions/checkout@v2
       
     - name: Setup ruby
