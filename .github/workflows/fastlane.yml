@@ -24,22 +24,22 @@ jobs:
     - name: Repository checkout
       if: contains(github.event.pull_request.labels.*.name, '✓')
       uses: actions/checkout@v2
-      
+    - uses: actions/cache@v3
+      id: cocoapods-cache
+      with:
+        path: Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+
     - name: Setup ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.2
         bundler-cache: true
 
-    - uses: actions/cache@v3
-      with:
-        path: Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pods-
-  
     - name: Install Dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cocoapods-cache.outputs.cache-hit != 'true'
       run: bundle exec pod install
 
     - name: Run tests
